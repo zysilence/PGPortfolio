@@ -164,8 +164,8 @@ class DataMatrices:
             self.__PVM.iloc[indexs, :] = w
         M = [self.get_submatrix(index) for index in indexs]
         M = np.array(M)
-        X = M[:, :, :, :-1]
-        y = M[:, :, :, -1] / M[:, 0, None, :, -2]
+        X = M[:, :, :, :-1]  # [sfan]: not normalized
+        y = M[:, :, :, -1] / M[:, 0, None, :, -2]  # [sfan] price relative vector: normalized by price of the last period in window size(e.g. 31)
         return {"X": X, "y": y, "last_w": last_w, "setw": setw}
 
     # volume in y is the volume in next access period

@@ -57,7 +57,9 @@ def train_all(processes=1, device="cpu"):
         if not str.isdigit(dir):
             return
         # NOTE: logfile is for compatibility reason
-        if not (os.path.isdir("./"+train_dir+"/"+dir+"/tensorboard") or os.path.isdir("./"+train_dir+"/"+dir+"/logfile")):
+        # if not (os.path.isdir("./"+train_dir+"/"+dir+"/tensorboard") or os.path.isdir("./"+train_dir+"/"+dir+"/logfile")):
+        # [sfan] revised for debug: continue training
+        if not os.path.isdir("./"+train_dir+"/"+dir+"/logfile"):
             p = Process(target=train_one, args=(
                 "./" + train_dir + "/" + dir + "/netfile",
                 load_config(dir),

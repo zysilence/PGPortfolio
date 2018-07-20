@@ -183,7 +183,7 @@ class TraderTrainer:
         total_training_time = 0
         for i in range(self.train_config["steps"]):
             step_start = time.time()
-            x, y, last_w, setw = self.next_batch()
+            x, y, last_w, setw = self.next_batch()  # [sfan] batch: similar to term 'episode' in RL framework
             finish_data = time.time()
             total_data_time += (finish_data - step_start)
             self._agent.train(x, y, last_w=last_w, setw=setw)
