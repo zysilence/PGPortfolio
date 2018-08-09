@@ -9,6 +9,7 @@ class NNAgent:
     def __init__(self, config, restore_dir=None, device="cpu"):
         self.__config = config
         self.__coin_number = config["input"]["coin_number"]
+        # [sfan] window_size: number of timesteps used as input per training example
         self.__net = network.CNN(config["input"]["feature_number"],
                                  self.__coin_number,
                                  config["input"]["window_size"],
@@ -16,9 +17,12 @@ class NNAgent:
                                  device=device)
         self.__global_step = tf.Variable(0, trainable=False)
         self.__train_operation = None
+        # [sfan] self.__y: relative price: normalized by price of the last period in window size(e.g. 31)
+        # [sfan] shape(self.__y): (?,3,11)
         self.__y = tf.placeholder(tf.float32, shape=[None,
                                                      self.__config["input"]["feature_number"],
                                                      self.__coin_number])
+        # [sfan] shape(self.__future_price): (?, 12)
         self.__future_price = tf.concat([tf.ones([self.__net.input_num, 1]),
                                        self.__y[:, 0, :]], 1)
         self.__future_omega = (self.__future_price * self.__net.output) /\

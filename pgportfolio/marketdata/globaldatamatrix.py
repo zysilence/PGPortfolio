@@ -33,6 +33,9 @@ class HistoryManager:
     def initialize_db(self):
         with sqlite3.connect(DATABASE_DIR) as connection:
             cursor = connection.cursor()
+            # [sfan] volume: the volume in terms of the first currency pair
+            # [sfan] quote volume: the volume in terms of the second currency pair
+            # [sfan] weightedAverage: the average price weighted by the volume of certain time interval
             cursor.execute('CREATE TABLE IF NOT EXISTS History (date INTEGER,'
                            ' coin varchar(20), high FLOAT, low FLOAT,'
                            ' open FLOAT, close FLOAT, volume FLOAT, '
@@ -49,7 +52,7 @@ class HistoryManager:
     def get_global_panel(self, start, end, period=300, features=('close',)):
         """
         :param start/end: linux timestamp in seconds
-        :param period: time interval of each data access point
+        :param period: time interval of each data access point ([sfan] price data are accessed every 'period' seconds, period=1800 in the paper)
         :param features: tuple or list of the feature names
         :return a panel, [feature, coin, time]
         """
@@ -165,6 +168,7 @@ class HistoryManager:
             raise ValueError('peroid has to be 5min, 15min, 30min, 2hr, 4hr, or a day')
 
     # add new history data into the database
+    # [sfan] use Poloniex api
     def update_data(self, start, end, coin):
         connection = sqlite3.connect(DATABASE_DIR)
         try:

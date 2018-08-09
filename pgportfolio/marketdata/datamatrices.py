@@ -13,6 +13,9 @@ MIN_NUM_PERIOD = 3
 
 
 class DataMatrices:
+    """
+    [sfan] Data structure that stores all data including training data and test data
+    """
     def __init__(self, start, end, period, batch_size=50, volume_average_days=30, buffer_bias_ratio=0,
                  market="poloniex", coin_filter=1, window_size=50, feature_number=3, test_portion=0.15,
                  portion_reversed=False, online=False, is_permed=False):
@@ -31,6 +34,7 @@ class DataMatrices:
         :param test_portion: portion of test set
         :param portion_reversed: if False, the order to sets are [train, validation, test]
         else the order is [test, validation, train]
+        :param volume_average_days: the length of time during which trading volumes are used to preselect the portfolio assets [sfan]
         """
         start = int(start)
         self.__end = int(end)
@@ -45,6 +49,7 @@ class DataMatrices:
                                                     volume_average_days=volume_average_days,
                                                     volume_forward=volume_forward, online=online)
         if market == "poloniex":
+            # [sfan] 'self.__global_data' stores the history data read from mysql database
             self.__global_data = self.__history_manager.get_global_panel(start,
                                                                          self.__end,
                                                                          period=period,

@@ -44,6 +44,8 @@ class CNN(NeuralNetWork):
     def _build_network(self, layers):
         network = tf.transpose(self.input_tensor, [0, 2, 3, 1])
         # [batch, assets, window, features]
+        # [sfan] 'None' index: add additional dimension, by making every element in the last dimension of
+        # the array into an individual dimension
         network = network / network[:, :, -1, 0, None, None]
         for layer_number, layer in enumerate(layers):
             if layer["type"] == "DenseLayer":
