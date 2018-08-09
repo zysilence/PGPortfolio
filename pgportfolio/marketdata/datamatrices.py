@@ -49,7 +49,12 @@ class DataMatrices:
                                                     volume_average_days=volume_average_days,
                                                     volume_forward=volume_forward, online=online)
         if market == "poloniex":
-            # [sfan] 'self.__global_data' stores the history data read from mysql database
+            """ [sfan]
+            self.__global_data: stores the history data read from mysql database
+            shape(self.global_data): (feature_num, coin_num, example_num), e.g. (3, 11, 35089)
+                feature: 'close', 'high', 'low' price
+                example: data examples(including training and testing) in order of time; time interval is 'period'(30 minutes here)
+            """
             self.__global_data = self.__history_manager.get_global_panel(start,
                                                                          self.__end,
                                                                          period=period,
