@@ -175,7 +175,10 @@ class DataMatrices:
         M = [self.get_submatrix(index) for index in indexs]
         M = np.array(M)
         X = M[:, :, :, :-1]  # [sfan]: not normalized
-        y = M[:, :, :, -1] / M[:, 0, None, :, -2]  # [sfan] price relative vector: normalized by price of the last period in window size(e.g. 31)
+        # [sfan] y: relative future price which is used to calculate the reward
+        #           M[:,:,:,-1] is the price of next access period
+        #           M[:,0,None,:,-2] is the close price of current period
+        y = M[:, :, :, -1] / M[:, 0, None, :, -2]
         return {"X": X, "y": y, "last_w": last_w, "setw": setw}
 
     # volume in y is the volume in next access period

@@ -17,18 +17,23 @@ class NNAgent:
                                  device=device)
         self.__global_step = tf.Variable(0, trainable=False)
         self.__train_operation = None
-        # [sfan] self.__y: relative price: normalized by price of the last period in window size(e.g. 31)
+        # [sfan] self.__y: relative future price
         # [sfan] shape(self.__y): (?,3,11)
         self.__y = tf.placeholder(tf.float32, shape=[None,
                                                      self.__config["input"]["feature_number"],
                                                      self.__coin_number])
-        # [sfan] shape(self.__future_price): (?, 12)
+        # [sfan] self.__future_price: relative future close price including the quoted currency
+        # [sfan] shape: (?, 12)
         self.__future_price = tf.concat([tf.ones([self.__net.input_num, 1]),
                                        self.__y[:, 0, :]], 1)
+        # [sfan] 'self.__net.output' means current omega
         self.__future_omega = (self.__future_price * self.__net.output) /\
                               tf.reduce_sum(self.__future_price * self.__net.output, axis=1)[:, None]
         # tf.assert_equal(tf.reduce_sum(self.__future_omega, axis=1), tf.constant(1.0))
         self.__commission_ratio = self.__config["trading"]["trading_consumption"]
+        # [sfan] self.__pure_pc(): computes the transaction cost considering the volume
+        # [sfan] self.__pv_vector: means 'immediate reward' in reinforcement learning framework;
+        #                          it is measured by relative price
         self.__pv_vector = tf.reduce_sum(self.__net.output * self.__future_price, reduction_indices=[1]) *\
                            (tf.concat([tf.ones(1), self.__pure_pc()], axis=0))
         self.__log_mean_free = tf.reduce_mean(tf.log(tf.reduce_sum(self.__net.output * self.__future_price,
@@ -94,6 +99,11 @@ class NNAgent:
         self.__net.session.close()
 
     def __set_loss_function(self):
+        """ [sfan]
+        Here 'self.pv_vector' means immediate reward per timestep.
+        Loss function just computes the average reward per timestep not considering cumulative return.
+        In David Silver's class, he pointed that both objective functions follow the Policy Gradient Theorem.
+        """
         def loss_function4():
             return -tf.reduce_mean(tf.log(tf.reduce_sum(self.__net.output[:] * self.__future_price,
                                                         reduction_indices=[1])))
