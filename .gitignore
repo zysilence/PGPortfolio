@@ -103,7 +103,8 @@ ENV/
 # database
 database/
 train_package/
-dataset
+dataset/forex/db
+dataset/forex/raw_data
 
 .DS_Store
 .idea/
