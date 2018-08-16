@@ -3,6 +3,8 @@ import os
 import sqlite3
 import time
 
+DATE_START = '20151230'
+DB_NAME = 'xauusd.db'
 
 def parse_time(d, t):
     return time.mktime(datetime.strptime(d + t, "%Y%m%d%H%M%S").timetuple())
@@ -10,7 +12,7 @@ def parse_time(d, t):
 
 def main():
     parent_path = os.path.abspath(os.path.pardir)
-    conn = sqlite3.connect(os.path.join(parent_path, 'db', 'forex.db'))
+    conn = sqlite3.connect(os.path.join(parent_path, 'db', DB_NAME))
     cur = conn.cursor()
     sql = 'CREATE TABLE IF NOT EXISTS History (date INTEGER, coin varchar(20), high FLOAT, low FLOAT, open FLOAT, ' \
           'close FLOAT, volume FLOAT, quoteVolume FLOAT, weightedAverage FLOAT,PRIMARY KEY (date, coin));'
@@ -18,6 +20,10 @@ def main():
 
     for f_name in os.listdir(os.path.join(parent_path, 'raw_data')):
         if not f_name.endswith('txt'):
+            continue
+
+        # coin filter
+        if not f_name.startswith('XAU'):
             continue
 
         f_path = os.path.join(parent_path, 'raw_data', f_name)
@@ -29,6 +35,11 @@ def main():
             items = line.split(',')
             coin = items[0]
             d = items[1]
+
+            # date filter: use recent data
+            if d < DATE_START:
+                continue
+
             t = items[2]
             open_price = items[3]
             high = items[4]

@@ -183,6 +183,19 @@ class NNAgent:
                                                     self.__y: y,
                                                     self.__net.previous_w: last_w,
                                                     self.__net.input_num: x.shape[0]})
+        """
+        # [sfan] debug
+        loss, pv_vector, weight, future_price = self.__net.session.run([self.__loss, self.__pv_vector, self.__net.output, self.__future_price],
+                                                                        feed_dict={self.__net.input_tensor: x, self.__y: y,
+                                                                                   self.__net.previous_w: last_w,
+                                                                                   self.__net.input_num: x.shape[0]})
+        import logging
+        logging.info('loss value is {}'.format(loss))
+        logging.info('pv_vector is {}'.format(pv_vector))
+        logging.info('future price is {}'.format(future_price))
+        logging.info('portfolio vector is {}'.format(weight))
+        """
+
         setw(results[-1][:, 1:])
         return results[:-1]
 
