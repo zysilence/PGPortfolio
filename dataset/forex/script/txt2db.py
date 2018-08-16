@@ -5,6 +5,8 @@ import time
 
 DATE_START = '20151230'
 DB_NAME = 'xauusd.db'
+PERIOD = 60
+
 
 def parse_time(d, t):
     return time.mktime(datetime.strptime(d + t, "%Y%m%d%H%M%S").timetuple())
@@ -23,11 +25,12 @@ def main():
             continue
 
         # coin filter
-        if not f_name.startswith('XAU'):
-            continue
+        if not f_name.startswith('XAU'): continue
+        # if not f_name.endswith('USD.txt'): continue
 
         f_path = os.path.join(parent_path, 'raw_data', f_name)
         f = open(f_path)
+        last = {}
         for line in f.readlines():
             if line.startswith('<'):
                 continue
@@ -48,8 +51,25 @@ def main():
             vol = items[7]
             d = parse_time(d, t)
 
+            # fill the miss records with last valid value
+            while last and last['date'] + PERIOD < d:
+                last['date'] += 60
+                cur.execute('insert into History values(?,?,?,?,?,?,?,?,?)',
+                            (last['date'], last['coin'], last['high'], last['low'],
+                             last['open'], last['close'], last['vol'], 'NULL', 'NULL'))
+
             cur.execute('insert into History values(?,?,?,?,?,?,?,?,?)',
                         (d, coin, high, low, open_price, close, vol, 'NULL', 'NULL'))
+
+            last = {
+                'date': d,
+                'coin': coin,
+                'high': high,
+                'low': low,
+                'open': open_price,
+                'close': close,
+                'vol': vol
+            }
 
     cur.close()
     conn.commit()
