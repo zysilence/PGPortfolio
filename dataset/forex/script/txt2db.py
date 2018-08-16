@@ -35,6 +35,7 @@ def main():
             if line.startswith('<'):
                 continue
 
+            line = line.strip()
             items = line.split(',')
             coin = items[0]
             d = items[1]
